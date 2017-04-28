@@ -1,4 +1,4 @@
-
+//list of possible answers
 var movieList = ['Psycho','Rosemarys Baby','Dont Look Now','The Wicker Man','The Shining','The Exorcist',
     'Nosferatu','Let the Right One In','Vampyr','Peeping Tom','The Innocents','Ringu',
     'The Haunting','Texas Chainsaw Massacre','Dead of Night','The Cabinet of Dr Caligari',
@@ -34,9 +34,11 @@ var movieList = ['Psycho','Rosemarys Baby','Dont Look Now','The Wicker Man','The
     'Lost in Translation','Roman Holiday','Wall E','My Night With Maud','Voyage to Italy','Dr Zhivago',
     'Harold & Maude','When Harry Met Sally','Say Anything','Fabulous Baker Boys','A Matter of Life & Death']
 
+//possible inputs
 var poss = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r',
             's','t','u','v','w','x','y','z'];
 
+//basic Hangman constructor
 function Hangman(ans) {
     this.ans = ans.split(' ').map(function(w) {return w.toUpperCase().split('');});
     this.flatAns = ans.split('').map(function(lett) {return lett.toUpperCase();}).filter(function(ch) {return ch!=' ';});
@@ -45,6 +47,7 @@ function Hangman(ans) {
     this.penalty = 0;
 }
 
+//test whether char is a correct letter and update accordingly
 Hangman.prototype.test = function(char) {
     var self = this;
     //first check valid input
@@ -63,6 +66,17 @@ Hangman.prototype.test = function(char) {
     return 1;
 }
 
+//have we guessed the whole thing?
+Hangman.prototype.testSuccess = function(){
+    var puzzletts = flatten(this.puzz);
+    for (var i = 0; i<puzzletts.length; i++ ) {
+        if (puzzletts[i] != this.flatAns[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 //helper: creates an array of identical characters
 function chain(str, num) {
     return num == 1 ? str : str + chain(str, num-1);
@@ -79,7 +93,61 @@ function delItem(val, arr) {
     return newarr;
 }
 
-var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
+//helper: flattens multdimensional array
+function flatten(arr) {
+    return arr.reduce(function(a,b) {return a.concat(b);});
+}
 
-var hangman = new Hangman(ans);
-console.log(ans, hangman.test('e'), hangman.puzz, hangman.poss);
+//helper: validate input and update
+function isValid(datainput) {
+    var validator = /^[a-zA-Z]$/ig;
+    return datainput.match(validator)==datainput;
+}
+
+//begin game
+
+function playGame() {
+    //choose a movie
+    var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
+
+    //new instance of game
+    var hangman = new Hangman(ans);
+
+    //intro
+
+    console.log("Guess the letters in the following movie title.")
+    console.log(hangman.puzz.map(function(part) {return part.join('.');}).join('  '));
+
+    var gameOver = false;
+    var result = 0;
+
+    while (!gameOver) {
+        //var inputchar = prompt("What letter do you want to guess?");
+        var inputchar = hangman.poss[Math.floor(Math.random()*hangman.poss.length)-1];
+        console.log("you chose letter " + inputchar);
+
+        if (!isValid(inputchar)) {
+            console.log("Invalid input, try again. (Entry must be a single character a-z.)");
+        } else {
+            result = hangman.test(inputchar);
+            hangman.penalty +=result;
+            if (hangman.penalty == 7) {
+                gameOver = true;
+                console.log("You died. Yo mama gonna cry.");
+                console.log("The answer was ", ans);
+            } else if (hangman.testSuccess()) {
+                gameOver = true;
+                console.log("You have escaped my noose, varlet.");
+            } else if (result == 0) {
+                console.log(hangman.puzz.map(function(part) {return part.join('.');}).join('  '));
+                console.log("Lucky. Luck does tend to run out, though.")
+                console.log("Remaining letters: ", hangman.poss.join(''));
+            } else if (result == 1) {
+                console.log("Oops. What a shame. At least you're alive. For now.");
+                console.log("Remaining letters: ", hangman.poss.join(''));
+            }
+        }       
+    }
+}
+
+playGame();
