@@ -49,19 +49,14 @@ function Hangman(ans) {
 
 //test whether char is a correct letter and update accordingly
 Hangman.prototype.test = function(char) {
-    var self = this;
     //first check valid input
     char = char.length==1 ? char.toUpperCase() : "Error"
     //delete char from poss
-    self.poss = delItem(char.toLowerCase(), self.poss);
+    this.poss = delItem(char.toLowerCase(), this.poss);
     //for each word in ans
-    if (self.flatAns.indexOf(char)!=-1) {
-        self.puzz = self.puzz.map(function(word, i) {
-        return word.map(function(_, j) {
-            return self.ans[i][j]==char ? char : '_';
-        });
-    });
-    return 0;
+    if (this.flatAns.indexOf(char)!=-1) {
+        this.setPuzz(char);
+        return 0;
     }
     return 1;
 }
@@ -75,6 +70,16 @@ Hangman.prototype.testSuccess = function(){
         }
     }
     return true;
+}
+
+Hangman.prototype.setPuzz = function(char) {
+    for (i=0; i<this.ans.length;i++) {
+        for (j=0;j<this.ans[i].length;j++) {
+            if (this.ans[i][j]==char) {
+            this.puzz[i][j]=char;
+            } 
+        }   
+    }
 }
 
 //helper: creates an array of identical characters
@@ -109,6 +114,7 @@ function isValid(datainput) {
 function playGame() {
     //choose a movie
     var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
+    //var ans = 'Scarface';
 
     //new instance of game
     var hangman = new Hangman(ans);
