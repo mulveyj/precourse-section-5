@@ -10,10 +10,11 @@
 <body>
 <h1>Guess the Movie titles - and avoid ... The Hangman</h1>
 
-<button id ="#playme" type="button">Play</button>
+<button id ="#playme" type="button">Play</button><button id ="#giveup" type="button">Give Up</button>
 <div id = "game">
 <h2>The gallows are ready... Guess a letter in this movie title.</h2>
-<h2>_._._._    _._._._</h2>
+<h2 id="#thepuzz"></h2>
+<h3>Available letters: </h3> <p class="avail">abcdefghijklmnopqrstuvwxyz</p>
 <p>&nbsp;</p>
 <form id = "inputlett">
   Your guess: <input type="text" name="guess" maxlength="10" size="2">  <button id ="#guess" type="button">Guess</button> <br>

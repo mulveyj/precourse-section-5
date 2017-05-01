@@ -45,6 +45,7 @@ function Hangman(ans) {
     this.puzz = ans.split(' ').map(function(word) {return chain('_', word.length).split('');});
     this.poss = poss;
     this.penalty = 0;
+    this.msg = "Your doom awaits, fool.";
 }
 
 //test whether char is a correct letter and update accordingly
@@ -80,6 +81,22 @@ Hangman.prototype.setPuzz = function(char) {
             } 
         }   
     }
+}
+
+Hangman.prototype.getPoss = function() {
+    return this.poss;
+}
+
+Hangman.prototype.getCurrPuzz = function() {
+    return this.puzz.map(function(part) {return part.join('.');}).join('  ');
+}
+
+Hangman.prototype.setCurrMsg = function(msg) {
+    this.msg = msg;
+}
+
+Hangman.prototype.getCurrMsg = function() {
+    return this.msg;
 }
 
 //helper: creates an array of identical characters
@@ -121,16 +138,17 @@ function playGame() {
 
     //intro
 
-    console.log("Guess the letters in the following movie title.")
-    console.log(hangman.puzz.map(function(part) {return part.join('.');}).join('  '));
+    $("#thepuzz").text(getCurrPuzz());
+    //console.log(hangman.puzz.map(function(part) {return part.join('.');}).join('  '));
 
     var gameOver = false;
     var result = 0;
 
     while (!gameOver) {
         //var inputchar = prompt("What letter do you want to guess?");
-        var inputchar = hangman.poss[Math.floor(Math.random()*hangman.poss.length)-1];
-        console.log("you chose letter " + inputchar);
+        //var inputchar = hangman.poss[Math.floor(Math.random()*hangman.poss.length)-1];
+        //console.log("you chose letter " + inputchar);
+        var inputchar = "e";
 
         if (!isValid(inputchar)) {
             console.log("Invalid input, try again. (Entry must be a single character a-z.)");
@@ -156,4 +174,4 @@ function playGame() {
     }
 }
 
-playGame();
+$("#playme").click(playGame());
