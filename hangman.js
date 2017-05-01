@@ -45,13 +45,14 @@ function Hangman(ans) {
     this.puzz = ans.split(' ').map(function(word) {return chain('_', word.length).split('');});
     this.poss = poss;
     this.penalty = 0;
+    this.testChar = "";
     this.msg = "Your doom awaits, fool.";
 }
 
 //test whether char is a correct letter and update accordingly
 Hangman.prototype.test = function(char) {
-    //first check valid input
-    char = char.length==1 ? char.toUpperCase() : "Error"
+    //first check valid input - don't need to do this now as form only accepts 1 char
+    //char = char.length==1 ? char.toUpperCase() : "Error"
     //delete char from poss
     this.poss = delItem(char.toLowerCase(), this.poss);
     //for each word in ans
@@ -126,6 +127,29 @@ function isValid(datainput) {
     return datainput.match(validator)==datainput;
 }
 
+//display game 
+Hangman.prototype.showInterface = function(isOver) {
+    if (isOver) {
+        $("#thepuzz").text(this.ans);
+        $("#avail").hide();
+        $("#inputlett").hide();
+        $("#message").text(this.msg);
+    } else {
+        $("#thepuzz").text(getCurrPuzz());
+        $("#avail").text(getPoss());
+        $("#inputlett").show();
+        $("#message").text(this.msg);
+        $("#guess").click()
+    }
+    
+    $("game").show();
+}
+
+//hide game
+
+function hideInterface() {
+    $("game").hide();
+}
 //begin game
 
 function playGame() {
@@ -145,19 +169,20 @@ function playGame() {
     var result = 0;
 
     while (!gameOver) {
+        showInterface();
         //var inputchar = prompt("What letter do you want to guess?");
         //var inputchar = hangman.poss[Math.floor(Math.random()*hangman.poss.length)-1];
         //console.log("you chose letter " + inputchar);
-        var inputchar = "e";
+        var inputchar = getElementByID("guessval").value;
 
-        if (!isValid(inputchar)) {
-            console.log("Invalid input, try again. (Entry must be a single character a-z.)");
-        } else {
-            result = hangman.test(inputchar);
-            hangman.penalty +=result;
-            if (hangman.penalty == 7) {
-                gameOver = true;
-                console.log("You died. Yo mama gonna cry.");
+        //if (!isValid(inputchar)) {
+        //    console.log("Invalid input, try again. (Entry must be a single character a-z.)");
+        //} else {
+        result = hangman.test(inputchar);
+        hangman.penalty +=result;
+        if (hangman.penalty == 7) {
+            gameOver = true;
+            console.log("You died. Yo mama gonna cry.");
                 console.log("The answer was ", ans);
             } else if (hangman.testSuccess()) {
                 gameOver = true;
