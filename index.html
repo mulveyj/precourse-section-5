@@ -10,11 +10,23 @@
 <body>
 <h1>Guess the Movie titles - and avoid ... The Hangman</h1>
 
+<button id ="#playme" type="button">Play</button>
+<div id = "game">
+<h2>The gallows are ready... Guess a letter in this movie title.</h2>
+<h2>_._._._    _._._._</h2>
+<p>&nbsp;</p>
+<form id = "inputlett">
+  Your guess: <input type="text" name="guess" maxlength="10" size="2">  <button id ="#guess" type="button">Guess</button> <br>
+</form>
+<h2>Your doom awaits, fool.</h2>
+</div>
+
+
 <!--script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'/script-->
 <script src="http://code.jquery.com/jquery-3.2.1.js"
   integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
   crossorigin="anonymous"></script>
-<script src='js/main.js'></script>
+<script src='hangman.js'></script>
 
 </body>
 </html>
