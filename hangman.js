@@ -1,3 +1,5 @@
+///////////////DATA /////////////////////////////
+
 //list of possible answers
 var movieList = ['Psycho','Rosemarys Baby','Dont Look Now','The Wicker Man','The Shining','The Exorcist',
     'Nosferatu','Let the Right One In','Vampyr','Peeping Tom','The Innocents','Ringu',
@@ -38,6 +40,7 @@ var movieList = ['Psycho','Rosemarys Baby','Dont Look Now','The Wicker Man','The
 var poss = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r',
             's','t','u','v','w','x','y','z'];
 
+//////////////////////// Define Hangman Object and Methods //////////////////////////
 //basic Hangman constructor
 function Hangman(ans) {
     this.ans = ans.split(' ').map(function(w) {return w.toUpperCase().split('');});
@@ -46,18 +49,18 @@ function Hangman(ans) {
     this.poss = poss;
     this.penalty = 0;
     this.testChar = "";
-    this.msg = "Your doom awaits, fool.";
+    this.success = false;
+    this.gameOver = false;
+    this.msg = "Your doom awaits, fool."; //for initial message
 }
 
 //test whether char is a correct letter and update accordingly
-Hangman.prototype.test = function(char) {
-    //first check valid input - don't need to do this now as form only accepts 1 char
-    //char = char.length==1 ? char.toUpperCase() : "Error"
+Hangman.prototype.test = function() {
     //delete char from poss
-    this.poss = delItem(char.toLowerCase(), this.poss);
+    this.poss = delItem(this.testChar.toLowerCase(), this.poss);
     //for each word in ans
-    if (this.flatAns.indexOf(char)!=-1) {
-        this.setPuzz(char);
+    if (this.flatAns.indexOf(this.testChar)!=-1) {
+        this.setPuzz(this.testChar);
         return 0;
     }
     return 1;
@@ -66,19 +69,22 @@ Hangman.prototype.test = function(char) {
 //have we guessed the whole thing?
 Hangman.prototype.testSuccess = function(){
     var puzzletts = flatten(this.puzz);
+    var k = 0;
+    this.success = false;
     for (var i = 0; i<puzzletts.length; i++ ) {
-        if (puzzletts[i] != this.flatAns[i]) {
-            return false;
+        if (puzzletts[i] = this.flatAns[i]) {
+            k+=1;
         }
     }
-    return true;
+    this.success = ( k == puzzletts.length ? true : false );
+    return this.success;
 }
 
 Hangman.prototype.setPuzz = function(char) {
     for (i=0; i<this.ans.length;i++) {
         for (j=0;j<this.ans[i].length;j++) {
             if (this.ans[i][j]==char) {
-            this.puzz[i][j]=char;
+                this.puzz[i][j]=char;
             } 
         }   
     }
@@ -99,6 +105,57 @@ Hangman.prototype.setCurrMsg = function(msg) {
 Hangman.prototype.getCurrMsg = function() {
     return this.msg;
 }
+
+Hangman.prototype.setPenalty = function(val) {
+    this.penalty = this.penalty + 1;
+}
+
+//display game 
+Hangman.prototype.showInterface = function() {
+    $("game").show();
+    var inputchar ="";
+    var result = 0;
+    if (this.gameOver) {
+        $("#thepuzz").text("The answer was: " + this.ans);
+        $("#avail").hide();
+        $("#inputlett").hide();
+        $("#message").text(this.msg);
+    } else {
+        $("#thepuzz").text(getCurrPuzz());
+        $("#avail").text(getPoss());
+        $("#inputlett").show();
+        $("#message").text(this.msg);
+        $("#guess").click(function() {
+            inputchar = getElementByID("guessval").value;
+        });
+        this.testChar = inputchar;
+        result = this.test();
+        this.penalty += result;
+        if (this.penalty == 7) {
+            this.msg = "You died. Yo mama gonna cry.";
+            this.gameOver = true;
+        } else if (this.testSuccess()) {
+            this.msg = "You have escaped my noose, varlet.";
+            this.gameOver = true;
+        } else if (result == 0) {
+            this.setPuzz(inputchar);
+            this.msg = "Lucky. Your luck will surely run out...";
+        } else {
+            this.msg = "Oops. What a shame. Oh well. At least you're alive. For now...";
+        }
+        this.showInterface();
+    }
+}
+
+//hide game
+
+function hideInterface() {
+    $("game").hide();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+//////////////////  Helper functions //////////////////////////////////////////
 
 //helper: creates an array of identical characters
 function chain(str, num) {
@@ -127,76 +184,22 @@ function isValid(datainput) {
     return datainput.match(validator)==datainput;
 }
 
-//display game 
-Hangman.prototype.showInterface = function(isOver) {
-    if (isOver) {
-        $("#thepuzz").text(this.ans);
-        $("#avail").hide();
-        $("#inputlett").hide();
-        $("#message").text(this.msg);
-    } else {
-        $("#thepuzz").text(getCurrPuzz());
-        $("#avail").text(getPoss());
-        $("#inputlett").show();
-        $("#message").text(this.msg);
-        $("#guess").click()
-    }
-    
-    $("game").show();
-}
-
-//hide game
-
-function hideInterface() {
-    $("game").hide();
-}
+////////////////////// Game Flow ///////////////////
 //begin game
 
 function playGame() {
     //choose a movie
     var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
-    //var ans = 'Scarface';
 
     //new instance of game
     var hangman = new Hangman(ans);
 
-    //intro
-
-    $("#thepuzz").text(getCurrPuzz());
-    //console.log(hangman.puzz.map(function(part) {return part.join('.');}).join('  '));
-
-    var gameOver = false;
-    var result = 0;
-
-    while (!gameOver) {
-        showInterface();
-        //var inputchar = prompt("What letter do you want to guess?");
-        //var inputchar = hangman.poss[Math.floor(Math.random()*hangman.poss.length)-1];
-        //console.log("you chose letter " + inputchar);
-        var inputchar = getElementByID("guessval").value;
-
-        //if (!isValid(inputchar)) {
-        //    console.log("Invalid input, try again. (Entry must be a single character a-z.)");
-        //} else {
-        result = hangman.test(inputchar);
-        hangman.penalty +=result;
-        if (hangman.penalty == 7) {
-            gameOver = true;
-            console.log("You died. Yo mama gonna cry.");
-                console.log("The answer was ", ans);
-            } else if (hangman.testSuccess()) {
-                gameOver = true;
-                console.log("You have escaped my noose, varlet.");
-            } else if (result == 0) {
-                console.log(hangman.puzz.map(function(part) {return part.join('.');}).join('  '));
-                console.log("Lucky. Luck does tend to run out, though.")
-                console.log("Remaining letters: ", hangman.poss.join(''));
-            } else if (result == 1) {
-                console.log("Oops. What a shame. At least you're alive. For now.");
-                console.log("Remaining letters: ", hangman.poss.join(''));
-            }
-        }       
-    }
+    hangman.showInterface();
 }
 
-$("#playme").click(playGame());
+
+////////////////////// Begin Game on Click /////////////////////////////////////////
+
+$(document).ready(function(){
+    $("#playme").click(playGame());
+});
