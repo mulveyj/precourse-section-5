@@ -1,3 +1,4 @@
+////////////////////////   Global Variables /////////////////////////
 //reference co-ordinates for hangman graphic
 var startx = 100;
 var starty = 100;
@@ -56,22 +57,122 @@ function Hangman(ans) {
     this.msg = "OK, let's dance."; //for initial message
 }
 
+//display game 
+/*
+Hangman.prototype.showInterface = function() {
+    $("game").show();
+    /*
+    var inputchar ="";
+    var result = 0;
+    
+    if (this.gameOver) {
+        $("#thepuzz").text("The answer was: " + this.ans);
+        $("#avail").hide();
+        $("#inputlett").hide();
+        $("#message").text(this.msg);
+    } else {
+    */
+    /*
+        $("#thepuzz").text(this.getCurrPuzz());
+        $("#avail").text(this.getPoss());
+        //$("#inputlett").show();
+        $("#message").text(this.msg);
+    */
+    /*
+        $("#guess").click(function() {
+            inputchar = getElementByID("guessval").value;
+        });
+        console.log("chk8")
+        this.testChar = inputchar;
+        result = this.test();
+        this.penalty += result;
+        if (this.penalty == 7) {
+            drawPenalty(7);
+            this.msg = "You died. Yo mama gonna cry.";
+            this.gameOver = true;
+        } else if (this.testSuccess()) {
+            this.msg = "You have escaped my noose, varlet.";
+            this.gameOver = true;
+        } else if (result == 0) {
+            this.setPuzz(inputchar);
+            this.msg = "Lucky. Your luck will surely run out...";
+        } else {
+            drawPenalty(this.penalty);
+            this.msg = "Oops. What a shame. Oh well. At least you're alive. For now...";
+        }
+    }
+    
+}
+*/
+
+Hangman.prototype.getCurrPuzz = function() {
+    console.log("chk6");
+    return this.puzz.map(function(part) {return part.join('.');}).join('  ');
+}
+
+Hangman.prototype.getPoss = function() {
+    console.log("chk7");
+    return this.poss;
+}
+
+Hangman.prototype.setPuzz = function(char) {
+    for (i=0; i<this.ans.length;i++) {
+        for (j=0;j<this.ans[i].length;j++) {
+            if (this.ans[i][j]==char) {
+                this.puzz[i][j]=char;
+            } 
+        }   
+    }
+}
+
+Hangman.prototype.test = function() {
+    //delete char from poss
+    this.poss = delItem(this.testChar.toLowerCase(), this.poss);
+    //for each word in ans
+    if (this.flatAns.indexOf(this.testChar)!=-1) {
+        this.setPuzz(this.testChar);
+        return 0;
+    }
+    return 1;
+}
+
+//have we guessed the whole thing?
+Hangman.prototype.testSuccess = function(){
+    var puzzletts = flatten(this.puzz);
+    var k = 0;
+    this.success = false;
+    for (var i = 0; i<puzzletts.length; i++ ) {
+        if (puzzletts[i] = this.flatAns[i]) {
+            k+=1;
+        }
+    }
+    this.success = ( k == puzzletts.length ? true : false );
+    return this.success;
+}
+
+/////////////////////  document manipulation and game control flow //////////
+// main call on document load
 $(document).ready(function(){
     $("#game").hide();
     $("#withcanvas").hide();
     $("#playme").click(function() {
         //hangman.showInterface();
+        $("#withcanvas").show();
+        drawGallows();
         //choose a movie
         var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
 
         //new instance of game
-        //var hangman = new Hangman(ans);
+        var hangman = new Hangman(ans);
         
         $("#game").show();
-        $("#withcanvas").show();
-        drawGallows();
+       
     });
 });
+
+
+
+////////////////////Drawing functions for graphic ///////////////
 
 //canvas and gallows
 function drawGallows() {
@@ -106,10 +207,11 @@ function drawPenalty(number) {
         cx1.moveTo(startx, starty+50);
         cx1.lineTo(startx, starty+150);
     } else if(number == 3) {
-        //arms
+        //left arm
         cx1.moveTo(startx-50, starty+150);
         cx1.lineTo(startx, starty+75);
     } else if (number == 4) {
+        //right arm
         cx1.moveTo(startx, startx+75);
         cx1.lineTo(startx+50, starty+150);
     } else if (number == 5) {
@@ -117,13 +219,38 @@ function drawPenalty(number) {
         cx1.moveTo(startx-50, starty+250);
         cx1.lineTo(startx, starty+150);
     } else if (number == 6) {
+        //right leg
         cx1.moveTo(startx, startx+150);
         cx1.lineTo(startx+50, starty+250);
     } else if ( number == 7) {
+        //noose
         cx1.strokeStyle = "red";
         cx1.moveTo(startx+50, starty+50);
         cx1.arc(startx, starty+50, 50, 0, 2*Math.PI);
     }
     cx1.stroke();
+}
+
+//////////////////  Helper functions //////////////////////////////////////////
+
+//helper: creates an array of identical characters
+function chain(str, num) {
+    return num == 1 ? str : str + chain(str, num-1);
+}
+
+//helper: deletes item from array
+function delItem(val, arr) {
+    var newarr = [];
+    for (var i=0; i< arr.length; i++) {
+        if (arr[i]!=val) {
+            newarr.push(arr[i]);
+        }
+    }
+    return newarr;
+}
+
+//helper: flattens multdimensional array
+function flatten(arr) {
+    return arr.reduce(function(a,b) {return a.concat(b);});
 }
 
