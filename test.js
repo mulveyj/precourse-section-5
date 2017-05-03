@@ -53,6 +53,56 @@ function Hangman(ans) {
 }
 
 $(document).ready(function(){
+    var canvas = document.getElementById("canvas1");
+    var cx = canvas.getContext("2d");
+    cx.strokeStyle = "black";
+    var startx = 100;
+    var starty = 100;
+    cx.lineWidth = 10;
+    cx.beginPath();
+    //Gallows
+    cx.moveTo(startx, starty);
+    cx.lineTo(startx,starty-75);
+    cx.lineTo(startx+150,starty-75);
+    cx.lineTo(startx+150, starty+375);
+    cx.moveTo(startx, starty+375);
+    cx.lineTo(startx+300, starty+375);
+    cx.stroke();
+
+    //Head
+    var cx1 = canvas.getContext("2d");
+    cx1.strokeStyle = "black";
+    var startx = 100;
+    var starty = 100;
+    cx1.lineWidth = 5;
+    cx1.beginPath();
+
+    cx1.moveTo(startx+25, starty+25);
+    cx1.arc(startx, starty+25, 25, 0, 2*Math.PI);
+    cx1.stroke();
+    //body
+    cx1.moveTo(startx, starty+50);
+    cx1.lineTo(startx, starty+150);
+    cx1.stroke();
+    //arms
+    cx1.moveTo(startx-50, starty+150);
+    cx1.lineTo(startx, starty+75);
+    cx1.lineTo(startx+50, starty+150);
+    cx1.stroke();
+    //legs
+    cx1.moveTo(startx-50, starty+250);
+    cx1.lineTo(startx, starty+150);
+    cx1.lineTo(startx+50, starty+250);
+    cx1.stroke();
+    //noose
+    var cx2 = canvas.getContext("2d");
+    cx2.strokeStyle = "red";
+    cx2.lineWidth = 5;
+    cx2.beginPath();
+    cx2.moveTo(startx+50, starty+50);
+    cx2.arc(startx, starty+50, 50, 0, 2*Math.PI);
+    cx2.stroke();
+    
     $("#game").hide();
     $("#playme").click(function() {
         //hangman.showInterface();
