@@ -1,3 +1,7 @@
+//reference co-ordinates for hangman graphic
+var startx = 100;
+var starty = 100;
+
 //list of possible answers
 var movieList = ['Psycho','Rosemarys Baby','Dont Look Now','The Wicker Man','The Shining','The Exorcist',
     'Nosferatu','Let the Right One In','Vampyr','Peeping Tom','The Innocents','Ringu',
@@ -53,11 +57,27 @@ function Hangman(ans) {
 }
 
 $(document).ready(function(){
+    $("#game").hide();
+    $("#withcanvas").hide();
+    $("#playme").click(function() {
+        //hangman.showInterface();
+        //choose a movie
+        var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
+
+        //new instance of game
+        //var hangman = new Hangman(ans);
+        
+        $("#game").show();
+        $("#withcanvas").show();
+        drawGallows();
+    });
+});
+
+//canvas and gallows
+function drawGallows() {
     var canvas = document.getElementById("canvas1");
     var cx = canvas.getContext("2d");
     cx.strokeStyle = "black";
-    var startx = 100;
-    var starty = 100;
     cx.lineWidth = 10;
     cx.beginPath();
     //Gallows
@@ -68,53 +88,42 @@ $(document).ready(function(){
     cx.moveTo(startx, starty+375);
     cx.lineTo(startx+300, starty+375);
     cx.stroke();
+}
 
-    //Head
+//draw person and noose
+function drawPenalty(number) {
+    var canvas = document.getElementById("canvas1");
     var cx1 = canvas.getContext("2d");
     cx1.strokeStyle = "black";
-    var startx = 100;
-    var starty = 100;
     cx1.lineWidth = 5;
     cx1.beginPath();
-
-    cx1.moveTo(startx+25, starty+25);
-    cx1.arc(startx, starty+25, 25, 0, 2*Math.PI);
+    if (number==1) {
+        //Head
+        cx1.moveTo(startx+25, starty+25);
+        cx1.arc(startx, starty+25, 25, 0, 2*Math.PI);
+    } else if (number == 2) {
+        //body
+        cx1.moveTo(startx, starty+50);
+        cx1.lineTo(startx, starty+150);
+    } else if(number == 3) {
+        //arms
+        cx1.moveTo(startx-50, starty+150);
+        cx1.lineTo(startx, starty+75);
+    } else if (number == 4) {
+        cx1.moveTo(startx, startx+75);
+        cx1.lineTo(startx+50, starty+150);
+    } else if (number == 5) {
+        //left leg
+        cx1.moveTo(startx-50, starty+250);
+        cx1.lineTo(startx, starty+150);
+    } else if (number == 6) {
+        cx1.moveTo(startx, startx+150);
+        cx1.lineTo(startx+50, starty+250);
+    } else if ( number == 7) {
+        cx1.strokeStyle = "red";
+        cx1.moveTo(startx+50, starty+50);
+        cx1.arc(startx, starty+50, 50, 0, 2*Math.PI);
+    }
     cx1.stroke();
-    //body
-    cx1.moveTo(startx, starty+50);
-    cx1.lineTo(startx, starty+150);
-    cx1.stroke();
-    //arms
-    cx1.moveTo(startx-50, starty+150);
-    cx1.lineTo(startx, starty+75);
-    cx1.lineTo(startx+50, starty+150);
-    cx1.stroke();
-    //legs
-    cx1.moveTo(startx-50, starty+250);
-    cx1.lineTo(startx, starty+150);
-    cx1.lineTo(startx+50, starty+250);
-    cx1.stroke();
-    //noose
-    var cx2 = canvas.getContext("2d");
-    cx2.strokeStyle = "red";
-    cx2.lineWidth = 5;
-    cx2.beginPath();
-    cx2.moveTo(startx+50, starty+50);
-    cx2.arc(startx, starty+50, 50, 0, 2*Math.PI);
-    cx2.stroke();
-    
-    $("#game").hide();
-    $("#playme").click(function() {
-        //hangman.showInterface();
-        //choose a movie
-        var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
-
-        //new instance of game
-        //var hangman = new Hangman(ans);
-        
-
-        $("#game").show();
-    });
-});
-
+}
 
