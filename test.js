@@ -82,7 +82,7 @@ Hangman.prototype.showInterface = function() {
         $("#guess").click(function() {
             inputchar = getElementByID("guessval").value;
         });
-        console.log("chk8")
+        console.log(inputchar)
         this.testChar = inputchar;
         result = this.test();
         this.penalty += result;
@@ -106,12 +106,10 @@ Hangman.prototype.showInterface = function() {
 */
 
 Hangman.prototype.getCurrPuzz = function() {
-    console.log("chk6");
-    return this.puzz.map(function(part) {return part.join('.');}).join('  ');
+    return this.puzz.map(function(part) {return part.join('.');}).join('/');
 }
 
 Hangman.prototype.getPoss = function() {
-    console.log("chk7");
     return this.poss;
 }
 
@@ -142,7 +140,7 @@ Hangman.prototype.testSuccess = function(){
     var k = 0;
     this.success = false;
     for (var i = 0; i<puzzletts.length; i++ ) {
-        if (puzzletts[i] = this.flatAns[i]) {
+        if (puzzletts[i] == this.flatAns[i]) {
             k+=1;
         }
     }
@@ -164,13 +162,63 @@ $(document).ready(function(){
 
         //new instance of game
         var hangman = new Hangman(ans);
+
+/*
+        $("#thepuzz").text(hangman.getCurrPuzz());
+        $("#avail").text(hangman.getPoss());
+        $("#message").text(hangman.msg);
         
         $("#game").show();
+*/      
+        displayGame(hangman);
        
     });
 });
 
+function displayGame(game) {
+    if (game.gameOver) {
+        $("#thepuzz").text("The answer was: " + this.ans);
+        $("#avail").hide();
+        $("#inputlett").hide();
+        $("#message").text(this.msg);
+    } else {
+        $("#thepuzz").text(game.getCurrPuzz());
+        $("#avail").text(game.getPoss());
+        $("#message").text(game.msg);
+            
+        $("#game").show();
 
+        $("#guess").click(function() {
+            useGuess(game);
+            $("#message").text(game.msg);
+            //displayGame(game);
+        });
+    }
+}
+
+function useGuess(game) {
+    var inputchar = $("#guessval").val();
+    console.log('ans', game.flatAns);
+    game.testChar = inputchar.toUpperCase();
+    var result = game.test();
+    console.log('result', result)
+    game.penalty += result;
+    console.log('penalty', game.penalty)
+    if (game.penalty == 7) {
+        drawPenalty(7);
+        game.msg = "You died. Yo mama gonna cry.";
+        game.gameOver = true;
+    } else if (game.testSuccess()) {
+        game.msg = "You have escaped my noose, varlet.";
+        game.gameOver = true;
+    } else if (result == 0) {
+        game.setPuzz(inputchar););
+        game.msg = "Lucky. Your luck will surely run out...";
+    } else {
+        drawPenalty(game.penalty);
+        game.msg = "Oops. What a shame. Oh well. At least you're alive. For now...";
+    }
+}
 
 ////////////////////Drawing functions for graphic ///////////////
 
