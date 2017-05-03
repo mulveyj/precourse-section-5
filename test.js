@@ -182,16 +182,20 @@ function displayGame(game) {
         $("#inputlett").hide();
         $("#message").text(this.msg);
     } else {
+        $("#guessval").val("");
         $("#thepuzz").text(game.getCurrPuzz());
         $("#avail").text(game.getPoss());
         $("#message").text(game.msg);
             
         $("#game").show();
 
-        $("#guess").click(function() {
-            useGuess(game);
-            $("#message").text(game.msg);
-            //displayGame(game);
+        $("#guess").on("click", function() {
+            console.log('click registered');
+            if ($("#guessval").val()) {
+                useGuess(game);
+                displayGame(game);
+            }
+            //$("#message").text(game.msg);
         });
     }
 }
@@ -200,6 +204,7 @@ function useGuess(game) {
     var inputchar = $("#guessval").val();
     console.log('ans', game.flatAns);
     game.testChar = inputchar.toUpperCase();
+    console.log(game.testChar);
     var result = game.test();
     console.log('result', result)
     game.penalty += result;
@@ -212,7 +217,7 @@ function useGuess(game) {
         game.msg = "You have escaped my noose, varlet.";
         game.gameOver = true;
     } else if (result == 0) {
-        game.setPuzz(inputchar););
+        game.setPuzz(inputchar);
         game.msg = "Lucky. Your luck will surely run out...";
     } else {
         drawPenalty(game.penalty);
