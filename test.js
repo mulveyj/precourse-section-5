@@ -54,7 +54,7 @@ function Hangman(ans) {
     this.testChar = "";
     this.success = false;
     this.gameOver = false;
-    this.msg = "OK, let's dance."; //for initial message
+    this.msg = "Prepare to meet thy doom, fool!"; //for initial message
 }
 
 Hangman.prototype.getCurrPuzz = function() {
@@ -121,10 +121,12 @@ $(document).ready(function(){
 
 function displayGame(game) {
     if (game.gameOver) {
-        $("#thepuzz").text("The answer was: " + this.ans);
+        console.log(game);
+        $("#thepuzz").text("The answer was: " + game.ans);
         $("#avail").hide();
         $("#inputlett").hide();
-        $("#message").text(this.msg);
+        $("#message").text(game.msg);
+        debugger;
     } else {
         $("#guessval").val("");
         $("#thepuzz").text(game.getCurrPuzz());
@@ -144,24 +146,23 @@ function displayGame(game) {
 
 function useGuess(game) {
     var inputchar = $("#guessval").val();
-    console.log('ans', game.flatAns);
     game.testChar = inputchar.toUpperCase();
-    console.log(game.testChar.toLowerCase());
-    console.log(game.poss);
     if (game.poss.indexOf(game.testChar.toLowerCase())==-1) {
         game.msg = "That is an invalid suggestion, rapscallion!";
     } else {
         var result = game.test();
-        console.log('result', result)
         game.penalty += result;
-        console.log('penalty', game.penalty)
         if (game.penalty == 7) {
             drawPenalty(7);
             game.msg = "You died. Yo mama gonna cry.";
             game.gameOver = true;
+            console.log("failure");
+            console.log(game);
         } else if (game.testSuccess()) {
             game.msg = "You have escaped my noose, varlet.";
+            console.log("success");
             game.gameOver = true;
+            console.log(game);
         } else if (result == 0) {
             game.setPuzz(inputchar);
             game.msg = "Lucky. Your luck will surely run out...";
