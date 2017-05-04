@@ -1,4 +1,7 @@
-///////////////DATA /////////////////////////////
+////////////////////////   Global Variables /////////////////////////
+//reference co-ordinates for hangman graphic
+var startx = 100;
+var starty = 100;
 
 //list of possible answers
 var movieList = ['Psycho','Rosemarys Baby','Dont Look Now','The Wicker Man','The Shining','The Exorcist',
@@ -43,6 +46,7 @@ var poss = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q',
 //////////////////////// Define Hangman Object and Methods //////////////////////////
 //basic Hangman constructor
 function Hangman(ans) {
+    this.textAns = ans;
     this.ans = ans.split(' ').map(function(w) {return w.toUpperCase().split('');});
     this.flatAns = ans.split('').map(function(lett) {return lett.toUpperCase();}).filter(function(ch) {return ch!=' ';});
     this.puzz = ans.split(' ').map(function(word) {return chain('_', word.length).split('');});
@@ -51,10 +55,27 @@ function Hangman(ans) {
     this.testChar = "";
     this.success = false;
     this.gameOver = false;
-    this.msg = "Your doom awaits, fool."; //for initial message
+    this.msg = "Prepare to meet thy doom, fool!"; //for initial message
 }
 
-//test whether char is a correct letter and update accordingly
+Hangman.prototype.getCurrPuzz = function() {
+    return this.puzz.map(function(part) {return part.join('.');}).join('/');
+}
+
+Hangman.prototype.getPoss = function() {
+    return this.poss;
+}
+
+Hangman.prototype.setPuzz = function(char) {
+    for (i=0; i<this.ans.length;i++) {
+        for (j=0;j<this.ans[i].length;j++) {
+            if (this.ans[i][j]==char) {
+                this.puzz[i][j]=char;
+            } 
+        }   
+    }
+}
+
 Hangman.prototype.test = function() {
     //delete char from poss
     this.poss = delItem(this.testChar.toLowerCase(), this.poss);
@@ -72,7 +93,7 @@ Hangman.prototype.testSuccess = function(){
     var k = 0;
     this.success = false;
     for (var i = 0; i<puzzletts.length; i++ ) {
-        if (puzzletts[i] = this.flatAns[i]) {
+        if (puzzletts[i] == this.flatAns[i]) {
             k+=1;
         }
     }
@@ -80,80 +101,141 @@ Hangman.prototype.testSuccess = function(){
     return this.success;
 }
 
-Hangman.prototype.setPuzz = function(char) {
-    for (i=0; i<this.ans.length;i++) {
-        for (j=0;j<this.ans[i].length;j++) {
-            if (this.ans[i][j]==char) {
-                this.puzz[i][j]=char;
-            } 
-        }   
-    }
-}
+/////////////////////  document manipulation and game control flow //////////
+// main call on document load
+$(document).ready(function(){
+    $("#game").hide();
+    $("#withcanvas").hide();
+    $("#playme").click(function() {
 
-Hangman.prototype.getPoss = function() {
-    return this.poss;
-}
+        $("#withcanvas").show();
+        drawGallows();
+        //choose a movie
+        var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
 
-Hangman.prototype.getCurrPuzz = function() {
-    return this.puzz.map(function(part) {return part.join('.');}).join('  ');
-}
+        //new instance of game
+        var hangman = new Hangman(ans); 
+        displayGame(hangman);
+       
+    });
+});
 
-Hangman.prototype.setCurrMsg = function(msg) {
-    this.msg = msg;
-}
-
-Hangman.prototype.getCurrMsg = function() {
-    return this.msg;
-}
-
-Hangman.prototype.setPenalty = function(val) {
-    this.penalty = this.penalty + 1;
-}
-
-//display game 
-Hangman.prototype.showInterface = function() {
-    $("game").show();
-    var inputchar ="";
-    var result = 0;
-    if (this.gameOver) {
-        $("#thepuzz").text("The answer was: " + this.ans);
+function displayGame(game) {
+    if (game.gameOver) {
+        console.log(game);
+        $("#thepuzz").text("The answer was: " + game.textAns);
         $("#avail").hide();
         $("#inputlett").hide();
-        $("#message").text(this.msg);
+        $("#message").text(game.msg);
     } else {
-        $("#thepuzz").text(getCurrPuzz());
-        $("#avail").text(getPoss());
+        $("#guessval").val("");
+        $("#thepuzz").text(game.getCurrPuzz());
+        $("#avail").show();
+        $("#avail").text(game.getPoss());
         $("#inputlett").show();
-        $("#message").text(this.msg);
+        $("#message").text(game.msg);
+            
+        $("#game").show();
+
         $("#guess").click(function() {
-            inputchar = getElementByID("guessval").value;
+            if ($("#guessval").val()) {
+                useGuess(game);
+                displayGame(game);
+            }
         });
-        this.testChar = inputchar;
-        result = this.test();
-        this.penalty += result;
-        if (this.penalty == 7) {
-            this.msg = "You died. Yo mama gonna cry.";
-            this.gameOver = true;
-        } else if (this.testSuccess()) {
-            this.msg = "You have escaped my noose, varlet.";
-            this.gameOver = true;
-        } else if (result == 0) {
-            this.setPuzz(inputchar);
-            this.msg = "Lucky. Your luck will surely run out...";
-        } else {
-            this.msg = "Oops. What a shame. Oh well. At least you're alive. For now...";
-        }
-        this.showInterface();
     }
 }
 
-//hide game
-
-function hideInterface() {
-    $("game").hide();
+function useGuess(game) {
+    var inputchar = $("#guessval").val();
+    game.testChar = inputchar.toUpperCase();
+    if (game.poss.indexOf(game.testChar.toLowerCase())==-1) {
+        if (!game.gameOver) {
+            game.msg = "That is an invalid suggestion, rapscallion!";
+        } 
+    } else {
+        var result = game.test();
+        game.penalty += result;
+        if (game.penalty == 7) {
+            drawPenalty(7);
+            game.msg = "You died. Yo mama gonna cry.";
+            game.gameOver = true;
+            console.log("failure");
+            console.log(game);
+        } else if (game.testSuccess()) {
+            game.msg = "You have escaped my noose, varlet.";
+            console.log("success");
+            game.gameOver = true;
+            console.log(game);
+        } else if (result == 0) {
+            game.setPuzz(inputchar);
+            game.msg = "Lucky. Your luck will surely run out...";
+        } else {
+            drawPenalty(game.penalty);
+            game.msg = "Oops. What a shame. Oh well. At least you're alive. For now...";
+        }
+    }   
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////Drawing functions for graphic ///////////////
+
+//canvas and gallows
+function drawGallows() {
+    var canvas = document.getElementById("canvas1");
+    var cx = canvas.getContext("2d");
+    cx.clearRect(0, 0, canvas.width, canvas.height);
+    cx.strokeStyle = "black";
+    cx.lineWidth = 10;
+    cx.beginPath();
+    //Gallows
+    cx.moveTo(startx, starty);
+    cx.lineTo(startx,starty-75);
+    cx.lineTo(startx+150,starty-75);
+    cx.lineTo(startx+150, starty+375);
+    cx.moveTo(startx, starty+375);
+    cx.lineTo(startx+300, starty+375);
+    cx.stroke();
+}
+
+//draw person and noose
+function drawPenalty(number) {
+    var canvas = document.getElementById("canvas1");
+    var cx1 = canvas.getContext("2d");
+    cx1.strokeStyle = "black";
+    cx1.lineWidth = 5;
+    cx1.beginPath();
+    if (number==1) {
+        //Head
+        cx1.moveTo(startx+25, starty+25);
+        cx1.arc(startx, starty+25, 25, 0, 2*Math.PI);
+    } else if (number == 2) {
+        //body
+        cx1.moveTo(startx, starty+50);
+        cx1.lineTo(startx, starty+150);
+    } else if(number == 3) {
+        //left arm
+        cx1.moveTo(startx-50, starty+150);
+        cx1.lineTo(startx, starty+75);
+    } else if (number == 4) {
+        //right arm
+        cx1.moveTo(startx, startx+75);
+        cx1.lineTo(startx+50, starty+150);
+    } else if (number == 5) {
+        //left leg
+        cx1.moveTo(startx-50, starty+250);
+        cx1.lineTo(startx, starty+150);
+    } else if (number == 6) {
+        //right leg
+        cx1.moveTo(startx, startx+150);
+        cx1.lineTo(startx+50, starty+250);
+    } else if ( number == 7) {
+        //noose
+        cx1.strokeStyle = "red";
+        cx1.moveTo(startx+50, starty+50);
+        cx1.arc(startx, starty+50, 50, 0, 2*Math.PI);
+    }
+    cx1.stroke();
+}
 
 //////////////////  Helper functions //////////////////////////////////////////
 
@@ -178,28 +260,3 @@ function flatten(arr) {
     return arr.reduce(function(a,b) {return a.concat(b);});
 }
 
-//helper: validate input and update
-function isValid(datainput) {
-    var validator = /^[a-zA-Z]$/ig;
-    return datainput.match(validator)==datainput;
-}
-
-////////////////////// Game Flow ///////////////////
-//begin game
-
-function playGame() {
-    //choose a movie
-    var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
-
-    //new instance of game
-    var hangman = new Hangman(ans);
-
-    hangman.showInterface();
-}
-
-
-////////////////////// Begin Game on Click /////////////////////////////////////////
-
-$(document).ready(function(){
-    $("#playme").click(playGame());
-});
