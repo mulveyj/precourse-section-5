@@ -111,8 +111,7 @@ $(document).ready(function(){
         $("#withcanvas").show();
         drawGallows();
         //choose a movie
-        //var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
-        var ans = "Let the Right One In";
+        var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
 
         //new instance of game
         var hangman = new Hangman(ans); 
@@ -131,7 +130,9 @@ function displayGame(game) {
     } else {
         $("#guessval").val("");
         $("#thepuzz").text(game.getCurrPuzz());
+        $("#avail").show();
         $("#avail").text(game.getPoss());
+        $("#inputlett").show();
         $("#message").text(game.msg);
             
         $("#game").show();
@@ -149,7 +150,9 @@ function useGuess(game) {
     var inputchar = $("#guessval").val();
     game.testChar = inputchar.toUpperCase();
     if (game.poss.indexOf(game.testChar.toLowerCase())==-1) {
-        game.msg = "That is an invalid suggestion, rapscallion!";
+        if (!game.gameOver) {
+            game.msg = "That is an invalid suggestion, rapscallion!";
+        } 
     } else {
         var result = game.test();
         game.penalty += result;
@@ -180,6 +183,7 @@ function useGuess(game) {
 function drawGallows() {
     var canvas = document.getElementById("canvas1");
     var cx = canvas.getContext("2d");
+    cx.clearRect(0, 0, canvas.width, canvas.height);
     cx.strokeStyle = "black";
     cx.lineWidth = 10;
     cx.beginPath();
