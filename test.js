@@ -46,6 +46,7 @@ var poss = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q',
 //////////////////////// Define Hangman Object and Methods //////////////////////////
 //basic Hangman constructor
 function Hangman(ans) {
+    this.textAns = ans;
     this.ans = ans.split(' ').map(function(w) {return w.toUpperCase().split('');});
     this.flatAns = ans.split('').map(function(lett) {return lett.toUpperCase();}).filter(function(ch) {return ch!=' ';});
     this.puzz = ans.split(' ').map(function(word) {return chain('_', word.length).split('');});
@@ -110,7 +111,8 @@ $(document).ready(function(){
         $("#withcanvas").show();
         drawGallows();
         //choose a movie
-        var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
+        //var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
+        var ans = "Let the Right One In";
 
         //new instance of game
         var hangman = new Hangman(ans); 
@@ -122,11 +124,10 @@ $(document).ready(function(){
 function displayGame(game) {
     if (game.gameOver) {
         console.log(game);
-        $("#thepuzz").text("The answer was: " + game.ans);
+        $("#thepuzz").text("The answer was: " + game.textAns);
         $("#avail").hide();
         $("#inputlett").hide();
         $("#message").text(game.msg);
-        debugger;
     } else {
         $("#guessval").val("");
         $("#thepuzz").text(game.getCurrPuzz());
@@ -135,7 +136,7 @@ function displayGame(game) {
             
         $("#game").show();
 
-        $("#guess").on("click", function() {
+        $("#guess").click(function() {
             if ($("#guessval").val()) {
                 useGuess(game);
                 displayGame(game);
