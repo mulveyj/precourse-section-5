@@ -57,54 +57,6 @@ function Hangman(ans) {
     this.msg = "OK, let's dance."; //for initial message
 }
 
-//display game 
-/*
-Hangman.prototype.showInterface = function() {
-    $("game").show();
-    /*
-    var inputchar ="";
-    var result = 0;
-    
-    if (this.gameOver) {
-        $("#thepuzz").text("The answer was: " + this.ans);
-        $("#avail").hide();
-        $("#inputlett").hide();
-        $("#message").text(this.msg);
-    } else {
-    */
-    /*
-        $("#thepuzz").text(this.getCurrPuzz());
-        $("#avail").text(this.getPoss());
-        //$("#inputlett").show();
-        $("#message").text(this.msg);
-    */
-    /*
-        $("#guess").click(function() {
-            inputchar = getElementByID("guessval").value;
-        });
-        console.log(inputchar)
-        this.testChar = inputchar;
-        result = this.test();
-        this.penalty += result;
-        if (this.penalty == 7) {
-            drawPenalty(7);
-            this.msg = "You died. Yo mama gonna cry.";
-            this.gameOver = true;
-        } else if (this.testSuccess()) {
-            this.msg = "You have escaped my noose, varlet.";
-            this.gameOver = true;
-        } else if (result == 0) {
-            this.setPuzz(inputchar);
-            this.msg = "Lucky. Your luck will surely run out...";
-        } else {
-            drawPenalty(this.penalty);
-            this.msg = "Oops. What a shame. Oh well. At least you're alive. For now...";
-        }
-    }
-    
-}
-*/
-
 Hangman.prototype.getCurrPuzz = function() {
     return this.puzz.map(function(part) {return part.join('.');}).join('/');
 }
@@ -154,22 +106,14 @@ $(document).ready(function(){
     $("#game").hide();
     $("#withcanvas").hide();
     $("#playme").click(function() {
-        //hangman.showInterface();
+
         $("#withcanvas").show();
         drawGallows();
         //choose a movie
         var ans = movieList[Math.floor(Math.random()*movieList.length)-1];
 
         //new instance of game
-        var hangman = new Hangman(ans);
-
-/*
-        $("#thepuzz").text(hangman.getCurrPuzz());
-        $("#avail").text(hangman.getPoss());
-        $("#message").text(hangman.msg);
-        
-        $("#game").show();
-*/      
+        var hangman = new Hangman(ans); 
         displayGame(hangman);
        
     });
@@ -190,12 +134,10 @@ function displayGame(game) {
         $("#game").show();
 
         $("#guess").on("click", function() {
-            console.log('click registered');
             if ($("#guessval").val()) {
                 useGuess(game);
                 displayGame(game);
             }
-            //$("#message").text(game.msg);
         });
     }
 }
@@ -204,25 +146,30 @@ function useGuess(game) {
     var inputchar = $("#guessval").val();
     console.log('ans', game.flatAns);
     game.testChar = inputchar.toUpperCase();
-    console.log(game.testChar);
-    var result = game.test();
-    console.log('result', result)
-    game.penalty += result;
-    console.log('penalty', game.penalty)
-    if (game.penalty == 7) {
-        drawPenalty(7);
-        game.msg = "You died. Yo mama gonna cry.";
-        game.gameOver = true;
-    } else if (game.testSuccess()) {
-        game.msg = "You have escaped my noose, varlet.";
-        game.gameOver = true;
-    } else if (result == 0) {
-        game.setPuzz(inputchar);
-        game.msg = "Lucky. Your luck will surely run out...";
+    console.log(game.testChar.toLowerCase());
+    console.log(game.poss);
+    if (game.poss.indexOf(game.testChar.toLowerCase())==-1) {
+        game.msg = "That is an invalid suggestion, rapscallion!";
     } else {
-        drawPenalty(game.penalty);
-        game.msg = "Oops. What a shame. Oh well. At least you're alive. For now...";
-    }
+        var result = game.test();
+        console.log('result', result)
+        game.penalty += result;
+        console.log('penalty', game.penalty)
+        if (game.penalty == 7) {
+            drawPenalty(7);
+            game.msg = "You died. Yo mama gonna cry.";
+            game.gameOver = true;
+        } else if (game.testSuccess()) {
+            game.msg = "You have escaped my noose, varlet.";
+            game.gameOver = true;
+        } else if (result == 0) {
+            game.setPuzz(inputchar);
+            game.msg = "Lucky. Your luck will surely run out...";
+        } else {
+            drawPenalty(game.penalty);
+            game.msg = "Oops. What a shame. Oh well. At least you're alive. For now...";
+        }
+    }   
 }
 
 ////////////////////Drawing functions for graphic ///////////////
